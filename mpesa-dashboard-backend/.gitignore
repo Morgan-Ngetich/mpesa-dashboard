@@ -1,0 +1,53 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Poetry virtual environments
+.env
+.venv
+
+# Virtual environment
+venv/
+ENV/
+
+# macOS system files
+.DS_Store
+
+# Docker files
+*.log
+docker-compose.override.yml
+
+# Python environment variables
+.envrc
+
+# Ignore dependencies
+poetry.lock
+Pipfile.lock
+
+# Logs and databases
+logs/
+*.log
+*.sqlite3
+db.sqlite3
+
+# Local uploads or generated files
+media/
+uploads/
+static/
+
+# VS Code settings
+.vscode/
+
+# Pytest cache
+.pytest_cache/
+
+# MyPy cache
+.mypy_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore compiled Cython files
+*.c
+*.so
