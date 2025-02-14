@@ -1,0 +1,19 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore environment files
+.env
+.venv
+poetry.lock
+
+# Ignore Docker and node_modules
+docker-compose.override.yml
+node_modules/
+dist/
+build/
+
+# Ignore database files
+postgres_data/
