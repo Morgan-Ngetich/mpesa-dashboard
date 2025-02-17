@@ -26,22 +26,22 @@ jobs:
           OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
         run: |
           oc login $OPENSHIFT_SERVER --token=$OPENSHIFT_TOKEN --insecure-skip-tls-verify=true
-          oc project myproject  # Replace with your OpenShift project name
+          oc project ngetichmorgan6-dev  # Replace with your OpenShift project name
 
       - name: Build and Push Backend Image
         env:
           OPENSHIFT_REGISTRY: ${{ secrets.OPENSHIFT_REGISTRY }}
         run: |
-          docker build -t $OPENSHIFT_REGISTRY/myproject/mpesa-dashboard-backend:latest ./mpesa-dashboard-backend
+          docker build -t $OPENSHIFT_REGISTRY/ngetichmorgan6-dev/mpesa-dashboard-backend:latest ./mpesa-dashboard-backend
           docker login -u $(oc whoami) -p $(oc whoami -t) $OPENSHIFT_REGISTRY
-          docker push $OPENSHIFT_REGISTRY/myproject/mpesa-dashboard-backend:latest
+          docker push $OPENSHIFT_REGISTRY/ngetichmorgan6-dev/mpesa-dashboard-backend:latest
 
       - name: Build and Push Frontend Image
         env:
           OPENSHIFT_REGISTRY: ${{ secrets.OPENSHIFT_REGISTRY }}
         run: |
-          docker build -t $OPENSHIFT_REGISTRY/myproject/mpesa-dashboard-frontend:latest ./mpesa-dashboard-frontend
-          docker push $OPENSHIFT_REGISTRY/myproject/mpesa-dashboard-frontend:latest
+          docker build -t $OPENSHIFT_REGISTRY/ngetichmorgan6-dev/mpesa-dashboard-frontend:latest ./mpesa-dashboard-frontend
+          docker push $OPENSHIFT_REGISTRY/ngetichmorgan6-dev/mpesa-dashboard-frontend:latest
 
       - name: Deploy to OpenShift
         run: |
