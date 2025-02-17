@@ -52,7 +52,7 @@ deploy-routes:
 deploy-configs:
 	@echo -e "$(CYAN)Applying configuration files...$(RESET)"
 	$(OC) apply -f $(CONFIGS_DIR)/log4j-configmap.yaml
-	$(OC) apply -f $(CONFIGS_DIR)/zoo-configmap.yaml --save-config
+	$(OC) apply -f $(CONFIGS_DIR)/zoo-configmap.yaml
 	@echo -e "$(GREEN)Configuration files applied successfully!$(RESET)"
 
 # Delete all resources
