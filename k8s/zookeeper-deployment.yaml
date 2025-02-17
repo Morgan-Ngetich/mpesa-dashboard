@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mpesa-dashboard-zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+        - name: zookeeper
+          image: wurstmeister/zookeeper
+          volumeMounts:
+            - name: zookeeper-config
+              mountPath: /opt/zookeeper-3.4.13/conf/
+          ports:
+            - containerPort: 2181
+      volumes:
+        - name: zookeeper-config
+          configMap:
+            name: zookeeper-config
+            

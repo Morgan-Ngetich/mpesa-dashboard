@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mpesa-dashboard-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: mpesa-dashboard-backend:latest
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - name: uploads
+              mountPath: /shared/uploads
+          env:
+            - name: ENV
+              value: production
+            - name: KAFKA_BROKER
+              value: kafka:9092
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: uploads-pvc
+

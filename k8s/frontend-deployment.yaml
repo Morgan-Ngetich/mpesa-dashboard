@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mpesa-dashboard-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: mpesa-dashboard-frontend:latest
+          ports:
+            - containerPort: 5173
+          volumeMounts:
+            - name: uploads
+              mountPath: /shared/uploads
+          env:
+            - name: VITE_API_URL
+              value: "https://${DOMAIN:-localhost}"
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: uploads-pvc
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: mpesa-dashboard-frontend
+# spec:
+#   ports:
+#     - port: 5173
+#   selector:
+#     app: frontend
+
+# ---
+# apiVersion: route.openshift.io/v1
+# kind: Route
+# metadata:
+#   name: mpesa-dashboard-frontend
+# spec:
+#   to:
+#     kind: Service
+#     name: mpesa-dashboard-frontend
+#   port:
+#     targetPort: 5173
+#   tls:
+#     termination: edge  # Optional, only if you need TLS termination
