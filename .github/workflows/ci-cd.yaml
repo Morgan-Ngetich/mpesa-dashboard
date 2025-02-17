@@ -1,0 +1,54 @@
+name: OpenShift CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Up OpenShift CLI
+        run: |
+          curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz
+          tar -xvf oc.tar.gz
+          chmod +x oc
+          sudo mv oc /usr/local/bin/
+
+      - name: Log in to OpenShift
+        env:
+          OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+          OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+        run: |
+          oc login $OPENSHIFT_SERVER --token=$OPENSHIFT_TOKEN --insecure-skip-tls-verify=true
+          oc project myproject  # Replace with your OpenShift project name
+
+      - name: Build and Push Backend Image
+        env:
+          OPENSHIFT_REGISTRY: ${{ secrets.OPENSHIFT_REGISTRY }}
+        run: |
+          docker build -t $OPENSHIFT_REGISTRY/myproject/mpesa-dashboard-backend:latest ./mpesa-dashboard-backend
+          docker login -u $(oc whoami) -p $(oc whoami -t) $OPENSHIFT_REGISTRY
+          docker push $OPENSHIFT_REGISTRY/myproject/mpesa-dashboard-backend:latest
+
+      - name: Build and Push Frontend Image
+        env:
+          OPENSHIFT_REGISTRY: ${{ secrets.OPENSHIFT_REGISTRY }}
+        run: |
+          docker build -t $OPENSHIFT_REGISTRY/myproject/mpesa-dashboard-frontend:latest ./mpesa-dashboard-frontend
+          docker push $OPENSHIFT_REGISTRY/myproject/mpesa-dashboard-frontend:latest
+
+      - name: Deploy to OpenShift
+        run: |
+          oc apply -f k8s/  # Make sure your k8s/ directory contains the OpenShift deployment files
+
+      - name: Verify Deployment
+        run: |
+          oc get pods
+          oc get services
+          oc get routes
