@@ -10,7 +10,6 @@ services:
       - ENV=production
       - KAFKA_BROKER=kafka:9092 
     depends_on:
-      - db
       - kafka
     restart: always 
     networks:
@@ -34,21 +33,6 @@ services:
     networks:
       - app_network
 
-  db:
-    image: postgres:15
-    container_name: mpesa-dashboard-db
-    restart: always
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: mpesa_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    networks:
-      - app_network
-
   nginx:
     image: nginx:latest
     container_name: nginx_proxy
@@ -67,14 +51,26 @@ services:
     image: wurstmeister/zookeeper
     container_name: mpesa-dashboard-zookeeper
     restart: always
+    volumes:
+      - ./zoo.cfg:/opt/zookeeper-3.4.13/conf/zoo.cfg
+      - ./log4j.properties:/opt/zookeeper-3.4.13/conf/log4j.properties
+      - ./zookeeper-data:/var/lib/zookeeper/data
     ports:
       - "2181:2181"
     networks:
       - app_network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
 
   kafka:
     image: wurstmeister/kafka
     container_name: mpesa-dashboard-kafka
+    volumes:
+      - ./kafka-data:/var/lib/kafka/data
     restart: always
     ports:
       - "9092:9092"
