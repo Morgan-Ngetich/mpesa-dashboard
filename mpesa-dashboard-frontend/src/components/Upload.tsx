@@ -2,25 +2,27 @@ import { useState } from "react";
 import { Button, VStack, Text } from "@chakra-ui/react";
 import { useDropzone } from "react-dropzone";
 import { uploadFile } from "../services/api";
+import { TransactionsResponse } from '../services/api'
 
 interface UploadProps {
-  setTransactions: (data: any) => void;
+  setData: (data: TransactionsResponse | null) => void; // Capture entire response
 }
 
-const Upload: React.FC<UploadProps> = ({ setTransactions }) => {
+const Upload: React.FC<UploadProps> = ({ setData }) => {
   const [uploading, setUploading] = useState(false);
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: { 
-      "text/csv": [".csv"], 
+    accept: {
+      "text/csv": [".csv"],
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
-      "application/pdf": [".pdf"]
+      "application/pdf": [".pdf"],
     },
     onDrop: async (acceptedFiles) => {
       setUploading(true);
       try {
-        const uploadedData = await uploadFile(acceptedFiles[0]); 
-        setTransactions(uploadedData);
+        const uploadedData = await uploadFile(acceptedFiles[0]);
+        console.log("Setting data state with:", uploadedData); 
+        setData(uploadedData); // Store entire response in state
       } catch (error) {
         console.error("Upload failed", error);
       }
