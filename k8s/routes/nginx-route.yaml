@@ -1,0 +1,12 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: nginx-route
+spec:
+  to:
+    kind: Service
+    name: nginx-service  # Replace with your nginx service name
+  port:
+    targetPort: 80  # Replace with the correct target port if needed
+  tls:
+    termination: edge  # Optional: Define TLS termination if needed
