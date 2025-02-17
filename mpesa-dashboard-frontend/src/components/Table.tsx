@@ -1,11 +1,19 @@
-import { Table, Thead, Tbody, Tr, Th, Td } from "@chakra-ui/react";
+import { Table, Thead, Tbody, Tr, Th, Td, Box, Text } from "@chakra-ui/react";
+
+interface RawTransaction {
+  completion_time: string;
+  details: string;
+  receipt_no: string;
+  paid_in: string;
+  withdraw: string;
+  transaction_status: string;
+}
 
 interface Transaction {
   date: string;
   type: string;
   recipient: string;
   amount: number;
-  method: string;
   category: string;
 }
 
@@ -14,9 +22,25 @@ interface GroupedTransactions {
 }
 
 interface TableProps {
-  transactions: Transaction[];
-  groupBy: "type" | "date" | "moneyFlow" | "recipient" | "method" | "size";
+  transactions: RawTransaction[];
+  groupBy: "type" | "date" | "moneyFlow" | "recipient" | "size";
 }
+
+const transformTransactions = (transactions: RawTransaction[]): Transaction[] => {
+  return transactions.map((t) => ({
+    date: new Intl.DateTimeFormat("en-GB", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(t.completion_time)),
+    type: t.details,
+    recipient: t.receipt_no || "N/A",
+    amount: parseFloat(t.paid_in) > 0 ? parseFloat(t.paid_in) : -parseFloat(t.withdraw),
+    category: t.transaction_status,
+  }));
+};
 
 const groupTransactions = (transactions: Transaction[], groupBy: string): GroupedTransactions => {
   switch (groupBy) {
@@ -45,12 +69,6 @@ const groupTransactions = (transactions: Transaction[], groupBy: string): Groupe
         acc[transaction.recipient].push(transaction);
         return acc;
       }, {} as GroupedTransactions);
-    case "method":
-      return transactions.reduce((acc, transaction) => {
-        acc[transaction.method] = acc[transaction.method] || [];
-        acc[transaction.method].push(transaction);
-        return acc;
-      }, {} as GroupedTransactions);
     case "size":
       return transactions.reduce((acc, transaction) => {
         let size = "Medium";
@@ -66,42 +84,43 @@ const groupTransactions = (transactions: Transaction[], groupBy: string): Groupe
 };
 
 const DataTable: React.FC<TableProps> = ({ transactions, groupBy }) => {
-  const groupedData = groupTransactions(transactions, groupBy);
+  const cleanedTransactions = transformTransactions(transactions);
+  const groupedData = groupTransactions(cleanedTransactions, groupBy);
 
   return (
-    <>
+    <Box overflowX="auto" p={4}>
       {Object.entries(groupedData).map(([group, transactions]) => (
-        <Table variant="simple" size="md" key={group} mt={5}>
-          <Thead>
-            <Tr>
-              <Th colSpan={6} textAlign="left" bg="gray.100">
-                {group}
-              </Th>
-            </Tr>
-            <Tr>
-              <Th>Date</Th>
-              <Th>Type</Th>
-              <Th>Recipient</Th>
-              <Th>Amount (KES)</Th>
-              <Th>Method</Th>
-              <Th>Category</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {transactions.map((transaction, index) => (
-              <Tr key={index}>
-                <Td>{transaction.date}</Td>
-                <Td>{transaction.type}</Td>
-                <Td>{transaction.recipient}</Td>
-                <Td>{transaction.amount.toLocaleString()}</Td>
-                <Td>{transaction.method}</Td>
-                <Td>{transaction.category}</Td>
+        <Box key={group} mb={6} borderRadius="lg" boxShadow="md" overflow="hidden">
+          <Text fontSize="lg" fontWeight="bold" bgGradient="linear(to-r, blue.500, purple.500)" color="white" p={3}>
+            {group}
+          </Text>
+          <Table variant="striped" colorScheme="gray">
+            <Thead>
+              <Tr bg="gray.200">
+                <Th>Date</Th>
+                <Th>Type</Th>
+                <Th>Recipient</Th>
+                <Th isNumeric>Amount (KES)</Th>
+                <Th>Status</Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
+            </Thead>
+            <Tbody>
+              {transactions.map((transaction, index) => (
+                <Tr key={index} _hover={{ bg: "gray.100" }}>
+                  <Td>{transaction.date}</Td>
+                  <Td>{transaction.type}</Td>
+                  <Td>{transaction.recipient}</Td>
+                  <Td isNumeric color={transaction.amount > 0 ? "green.500" : "red.500"}>
+                    {transaction.amount.toLocaleString()}
+                  </Td>
+                  <Td>{transaction.category}</Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
       ))}
-    </>
+    </Box>
   );
 };
 
