@@ -1,0 +1,136 @@
+/* Calendar Container */
+.react-calendar {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  font-family: "Poppins", sans-serif;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Navigation */
+.react-calendar__navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.react-calendar__navigation button {
+  background: none;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+}
+
+.react-calendar__navigation button:hover {
+  color: #007bff;
+  transform: scale(1.1);
+}
+
+.react-calendar__navigation button:hover {
+  color: #3182ce;
+  background: #e2e8f0;
+}
+
+/* Disabled Navigation Buttons */
+.react-calendar__navigation button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Weekdays */
+.react-calendar__month-view__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-weight: bold;
+  color: #777;
+  padding: 8px 0;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+/* Days Grid */
+.react-calendar__month-view__days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+/* Individual Day Tile */
+.react-calendar__tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px;
+  font-size: 14px;
+  font-weight: 500;
+  background: #f7f7f7;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border-radius: 8px;
+  border: 1px solid black;
+}
+
+/* Hover Effect */
+.react-calendar__tile:hover {
+  background: #e0e0e0;
+}
+
+/* Selected Day */
+.react-calendar__tile--active {
+  background: #0ae6065f;
+  color: black;
+  font-weight: bold;
+  transform: scale(1.1);
+}
+
+/* Today's Date */
+.react-calendar__tile--now {
+  background: #ff00377b;
+  color: #333;
+  font-weight: bold;
+}
+
+/* Disabled Days */
+.react-calendar__tile--disabled {
+  background: #f0f0f0;
+  color: #bbb;
+  pointer-events: none;
+}
+
+
+
+/* Start Date - Rounded Left */
+
+/* Adjusted for Mobile */
+@media (max-width: 480px) {
+  .react-calendar {
+    max-width: 100%;
+  }
+
+  .react-calendar__tile {
+    padding: 10px;
+    font-size: 12px;
+  }
+}
+
+
+
+
+/* Highlighted Date Range */
+.highlighted {
+  background: #0ae6065f; /* Blue */
+  color: black;
+  font-weight: bold;
+  border-top-left-radius: 10; /* No border-radius for middle range */
+}
+
