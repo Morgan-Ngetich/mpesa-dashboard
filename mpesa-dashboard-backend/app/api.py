@@ -35,6 +35,67 @@ def extract_statement_period(text):
         }
     }
 
+def extract_summary(text):
+    """Extract only the summary section from the MPESA statement using a strict predefined format."""
+
+    # Strictly match the entire summary section based on the given pattern
+    summary_pattern = re.search(
+        r'SUMMARY\s*\n+\s*DETAILED STATEMENT\s*\n+TRANSACTION TYPE\s+PAID IN\s+PAID OUT\n+'
+        r'(Cash Out\s+[0-9,]+\.\d{2}\s+[0-9,]+\.\d{2}\n'
+        r'Send Money\s+[0-9,]+\.\d{2}\s+[0-9,]+\.\d{2}\n'
+        r'B2C Payment\s+[0-9,]+\.\d{2}\s+[0-9,]+\.\d{2}\n'
+        r'Pay Bill\s+[0-9,]+\.\d{2}\s+[0-9,]+\.\d{2}\n'
+        r'Cash In\s+[0-9,]+\.\d{2}\s+[0-9,]+\.\d{2}\n'
+        r'OD Payment Transfer\s+[0-9,]+\.\d{2}\s+[0-9,]+\.\d{2}\n'
+        r'KenyaRecharge\s+[0-9,]+\.\d{2}\s+[0-9,]+\.\d{2}\n'
+        r'ODRepayment\s+[0-9,]+\.\d{2}\s+[0-9,]+\.\d{2}\n'
+        r'Customer Merchant Payment\s+[0-9,]+\.\d{2}\s+[0-9,]+\.\d{2}\n'
+        r'Customer Airtime Purchase\s+[0-9,]+\.\d{2}\s+[0-9,]+\.\d{2}\n'
+        r'Customer Bundle Purchase\s+[0-9,]+\.\d{2}\s+[0-9,]+\.\d{2}\n'
+        r'TOTAL:\s+[0-9,]+\.\d{2}\s+[0-9,]+\.\d{2})',
+        text, re.IGNORECASE
+    )
+
+    if not summary_pattern:
+        print("❌ No summary section found!")
+        return []
+
+    summary_text = summary_pattern.group(1).strip()  # Extract the summary portion
+
+    # Debugging: Print extracted summary section
+    print("✅ Extracted Summary Text:\n", summary_text)
+
+    # Extract transactions from the matched summary text
+    transaction_pattern = re.compile(
+        r"(?P<transaction_type>[A-Za-z\s]+)\s+"
+        r"(?P<paid_in>\d{1,3}(?:,\d{3})*\.\d{2})\s+"
+        r"(?P<paid_out>\d{1,3}(?:,\d{3})*\.\d{2})"
+    )
+
+    summary_data = []
+    for match in transaction_pattern.finditer(summary_text):
+        transaction_type = match.group("transaction_type").strip()
+        paid_in = float(match.group("paid_in").replace(",", ""))
+        paid_out = float(match.group("paid_out").replace(",", ""))
+
+        summary_data.append({
+            "transaction_type": transaction_type,
+            "paid_in": paid_in,
+            "paid_out": paid_out,
+        })
+        
+        # Add TOTAL row separately
+    summary_data.append({
+        "transaction_type": "TOTAL",
+        "paid_in": paid_in,
+        "paid_out": paid_out,
+    })
+
+    if not summary_data:
+        print("⚠️ No valid transactions found in the extracted summary!")
+
+    return summary_data
+
 def parse_mpesa_statement(text):
     """Extract transactions from MPESA statements into structured JSON format"""
     transactions = []
@@ -70,11 +131,13 @@ async def upload_file(file: UploadFile = File(...)):
         customer_details = extract_customer_details(text)
         statement_period = extract_statement_period(text)
         transactions = parse_mpesa_statement(text)
+        summary = extract_summary(text)  
         
         statement_data =  {
             "filename": file.filename,
             "customer": customer_details,
             "statement": statement_period,
+            "summary": summary,
             "transactions": transactions,
             "disclaimer": "This data is extracted from the MPESA statement and may not be 100% accurate."
         }
@@ -83,7 +146,7 @@ async def upload_file(file: UploadFile = File(...)):
         
         return {
             "message": "Statement uploaded and sent to Kafka successfully.",
-            "filename": file.filename
+            **statement_data
         }
 
     return {"filename": file.filename, "message": "File uploaded but not processed"}
