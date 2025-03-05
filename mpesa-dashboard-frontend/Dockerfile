@@ -11,6 +11,9 @@ COPY ./ /app/
 
 ARG VITE_API_URL=${VITE_API_URL}
 
+ARG CACHE_BUST
+RUN echo "Building with cache bust: ${CACHE_BUST}"
+
 RUN npm run build
 
 
