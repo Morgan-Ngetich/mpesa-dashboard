@@ -2,26 +2,7 @@ import { Box, Flex, SimpleGrid, Text, Icon, Button, Collapse } from "@chakra-ui/
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 import { useState } from "react";
 
-const deposits = [
-  { type: "Cash In", amount: 6100 },
-  { type: "Send Money (Received)", amount: 90751.27 },
-  { type: "B2C Payment", amount: 44400 },
-  { type: "OD Payment Transfer", amount: 5000 },
-  { type: "KenyaRecharge", amount: 50 },
-  { type: "Customer Merchant Payment", amount: 900 },
-];
-
-const withdrawals = [
-  { type: "Cash Out", amount: 28081 },
-  { type: "Send Money (Sent)", amount: 83563 },
-  { type: "Pay Bill", amount: 16065 },
-  { type: "OD Repayment", amount: 22171.67 },
-  { type: "Customer Merchant Payment", amount: 10772.25 },
-  { type: "Customer Airtime Purchase", amount: 150 },
-  { type: "Customer Bundle Purchase", amount: 2226 },
-];
-
-const Breakdown = () => {
+const Breakdown = ({deposits, withdrawals}) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -62,11 +43,11 @@ const Breakdown = () => {
                 </Box>
 
                 {/* Transaction Type */}
-                <Text  fontSize={{base: "sm", md: "md"}} fontWeight="bold">{t.type}</Text>
+                <Text  fontSize={{base: "sm", md: "md"}} fontWeight="bold">{t.transaction_type}</Text>
 
                 {/* Amount */}
                 <Text  fontSize={{base: "lg", md: "xl"}} fontWeight="bold" color="green.700">
-                  KES {t.amount.toLocaleString()}
+                  KES {t.paid_in.toLocaleString()}
                 </Text>
               </Box>
             ))}
@@ -95,11 +76,11 @@ const Breakdown = () => {
                 </Box>
 
                 {/* Transaction Type */}
-                <Text  fontSize={{base: "sm", md: "md"}} fontWeight="bold">{t.type}</Text>
+                <Text  fontSize={{base: "sm", md: "md"}} fontWeight="bold">{t.transaction_type}</Text>
 
                 {/* Amount */}
                 <Text  fontSize={{base: "lg", md: "xl"}} fontWeight="bold" color="red.700">
-                  KES {t.amount.toLocaleString()}
+                  KES {t.paid_out.toLocaleString()}
                 </Text>
               </Box>
             ))}

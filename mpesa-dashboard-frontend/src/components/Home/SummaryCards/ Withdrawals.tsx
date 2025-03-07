@@ -1,18 +1,7 @@
 import { SimpleGrid, Box, Text, Flex, Icon } from "@chakra-ui/react";
 import { FaArrowUp } from "react-icons/fa";
 
-const withdrawals = [
-  { type: "Cash Out", amount: 28081.0 },
-  { type: "Customer Airtime Purchase", amount: 150.0 },
-  { type: "Pay Bill", amount: 16065.0 },
-  { type: "Send Money (Sent)", amount: 83563.0 },
-  { type: "Customer Merchant Payment", amount: 10772.25 },
-  { type: "OD Repayment", amount: 22171.67 },
-
-  // { type: "Customer Bundle Purchase", amount: 2226.0 },
-];
-
-const Withdrawals = () => {
+const Withdrawals = ({withdrawals}) => {
   return (
     <Box>
       <SimpleGrid columns={{ base: 2, md: 3 }} spacing={6} >
@@ -36,11 +25,11 @@ const Withdrawals = () => {
             </Box>
 
             {/* Title */}
-            <Text fontSize={{base: "sm", md: "md"}} fontWeight="bold">{t.type}</Text>
+            <Text fontSize={{base: "sm", md: "md"}} fontWeight="bold">{t.transaction_type}</Text>
 
             {/* Amount */}
             <Text fontSize={{base: "xl", md: "2xl"}} fontWeight="bold" color="green.700">
-              <span style={{ fontSize: "16px" }}>KES</span> {t.amount.toLocaleString()}
+              <span style={{ fontSize: "16px" }}>KES</span> {t.paid_out.toLocaleString()}
             </Text>
           </Box>
         ))}

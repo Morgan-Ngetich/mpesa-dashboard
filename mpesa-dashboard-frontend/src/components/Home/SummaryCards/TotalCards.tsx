@@ -2,34 +2,41 @@ import { Box, SimpleGrid, Flex, Text, Icon } from "@chakra-ui/react";
 import { FaMoneyBillWave, FaExchangeAlt, FaWallet } from "react-icons/fa";
 import { MdTrendingUp } from "react-icons/md";
 
+
+const TotalCards = ({summaryData}) => {
+  // Calculate totals
+const totalPaidIn = summaryData.reduce((sum, txn) => sum + txn.paid_in, 0);
+const totalPaidOut = summaryData.reduce((sum, txn) => sum + txn.paid_out, 0);
+const netBalanceChange = totalPaidIn - totalPaidOut;
+const overdraftLoanActivity = summaryData.find(txn => txn.transaction_type === "ODRepayment")?.paid_out || 0;
+
 const summaryCards = [
   {
     title: "Total Inflows (Money Received)",
-    amount: "KES 156,495.60",
+    amount: `KES ${totalPaidIn.toFixed(2)}`,
     color: "rgba(125, 15, 64, 0.2)",
     icon: FaMoneyBillWave,
   },
   {
     title: "Total Outflows (Money Spent)",
-    amount: "KES 163,078.92",
+    amount: `KES ${totalPaidOut.toFixed(2)}`,
     color: "rgba(15, 86, 125, 0.2)",
     icon: FaExchangeAlt,
   },
   {
     title: "Net Balance Change",
-    amount: "KES -6,583.32",
+    amount: `KES ${netBalanceChange.toFixed(2)}`,
     color: "rgba(15, 125, 64, 0.2)",
     icon: FaWallet,
   },
   {
     title: "Overdraft & Loan Activity",
-    amount: "KES 22,171.67",
+    amount: `KES ${overdraftLoanActivity.toFixed(2)}`,
     color: "rgba(121, 125, 15, 0.19)",
     icon: MdTrendingUp,
   },
 ];
 
-const TotalCards = () => {
   return (
     <SimpleGrid columns={{ base: 2, md: 2 }} spacing={6} placeItems="center" h="full" w="full">
       {summaryCards.map((card, index) => (

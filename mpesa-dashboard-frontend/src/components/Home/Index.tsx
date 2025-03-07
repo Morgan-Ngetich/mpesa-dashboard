@@ -9,12 +9,7 @@ import TotalCards from "./SummaryCards/TotalCards";
 import { FaSearch } from "react-icons/fa";
 import HighlightCalendar from "./Calendar";
 
-const transactions = [
-  { completion_time: "2025-01-31 19:21:33", details: "Pay Merchant Charge", paid_in: 0, withdraw: 2.20, balance: 13.80, receipt_no: "TAV88PF1EU", transaction_status: "COMPLETED" },
-  { completion_time: "2025-01-31 19:14:55", details: "B2C Transfer", paid_in: 300, withdraw: 0, balance: 16.00, receipt_no: "BCX99HGF21", transaction_status: "COMPLETED" },
-];
-
-const SummaryDashboard = () => {
+const SummaryDashboard = ({fileData}) => {
 
   const [view, setView] = useState(0); // 0 = Summary, 1 = Transactions
 
@@ -23,9 +18,25 @@ const SummaryDashboard = () => {
     onSwipedRight: () => setView((prev) => (prev > 0 ? prev - 1 : 3)), // Loop backward
   });
 
+  const transactions = fileData?.transactions
+  const deposits = fileData?.summary.filter((t) =>
+    ["Cash In", "Customer Merchant Payment", "B2C Payment", "Send Money", "OD Payment Transfer", "KenyaRecharge"].includes(t.transaction_type)
+  );
+  
+  const withdrawals = fileData?.summary.filter((t) =>
+    ["Cash Out", "Customer Airtime Purchase", "Pay Bill", "Send Money", "Customer Merchant Payment", "ODRepayment"].includes(t.transaction_type)
+  );
+  
+  console.log("Deposits:", deposits);
+  console.log("Withdrawals:", withdrawals);
+  console.log("trasactions", transactions)
+  console.log("Summary Data:", fileData);
+
   return (
     <Flex gap={6} wrap="wrap">
-      <Box h={'full'} w={{ base: "100%", md: "60%" }} p={0}>
+      <Flex direction={{base: "column", md: "column", lg: "row"}} justify={'space-between'} w={'full'}>
+
+      <Box h={'full'}  p={0}>
         <Box
           overflowX={{ base: "auto", md: "visible" }} // Enable horizontal scrolling on mobile
           whiteSpace="nowrap"
@@ -65,28 +76,30 @@ const SummaryDashboard = () => {
           </Flex>
         </Box>
 
-        <Box {...handlers} flex="2" p={0}>
+        <Box {...handlers}  p={0}>
           {view === 0 ? (
-            <TotalCards />
+            <TotalCards summaryData={fileData?.summary}/>
           ) : view === 1 ? (
-            <Deposits />
+            <Deposits deposits={deposits}/>
           ) : view === 2 ? (
-            <Withdrawals />
+            <Withdrawals withdrawals={withdrawals}/>
           ) : view === 3 ? (
-            <Breakdown />
+            <Breakdown deposits={deposits} withdrawals={withdrawals}/>
           ) : null}
         </Box>
       </Box>
 
       {/* 📈 Right Section - Doughnut Chart & Total Summary Card */}
-      <Box flex="2">
+      <Box  w={'40%'}>
         {/* Doughnut Chart */}
         <DoughnutChart />
       </Box>
+      </Flex>
 
 
       <Flex gap={6} direction={{ base: "column", md: "row" }} mt={10}>
 
+        
         <Box
           flex="2"
           overflowX="auto"
