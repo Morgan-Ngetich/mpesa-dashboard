@@ -37,4 +37,7 @@ COPY . .
 
 # Ensure `start.sh` has execution permissions
 COPY ./start.sh /start.sh
- 
+# RUN chmod +x /start.sh 
+
+# Set entrypoint
+ENTRYPOINT ["/start.sh"]
