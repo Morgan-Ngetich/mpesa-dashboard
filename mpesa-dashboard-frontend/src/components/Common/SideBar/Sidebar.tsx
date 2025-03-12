@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { Box, Flex, IconButton, VStack, Text, HStack } from "@chakra-ui/react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Box, Flex, IconButton, VStack, Text } from "@chakra-ui/react";
 import {
   MdMenu,
   MdClose,
@@ -10,48 +9,62 @@ import {
   MdNotifications,
   MdSettings,
 } from "react-icons/md";
+import { useLocation } from "react-router-dom";
 import SidebarItem from "./SidebarItem";
 
-// Define icon mapping
+// Map icon names to actual icon components
 const iconMap: Record<string, any> = {
-  MdDashboard: MdDashboard,
-  MdReceiptLong: MdReceiptLong,
-  MdInsights: MdInsights,
-  MdNotifications: MdNotifications,
-  MdSettings: MdSettings,
+  MdDashboard,
+  MdReceiptLong,
+  MdInsights,
+  MdNotifications,
+  MdSettings,
 };
 
-// Sidebar items
+// Sidebar menu data
 const SidebarData = [
-  { title: "Dashboard", icon: "MdDashboard", path: "/" },
-  { title: "Receipts", icon: "MdReceiptLong", path: "/transactions" },
-  { title: "Insights", icon: "MdInsights", path: "/insights" },
-  { title: "Notifications", icon: "MdNotifications", path: "/notifications" },
-  { title: "Settings", icon: "MdSettings", path: "/settings" },
+  { title: "Dashboard", icon: "MdDashboard", path: "/dashboard" },
+  { title: "Receipts", icon: "MdReceiptLong", path: "/dashboard/transactions" },
+  { title: "Insights", icon: "MdInsights", path: "/dashboard/insights" },
+  { title: "Notifications", icon: "MdNotifications", path: "/dashboard/notifications" },
+  { title: "Settings", icon: "MdSettings", path: "/dashboard/settings" },
 ];
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const location = useLocation(); // Get current route
+  const location = useLocation();
+
+  // Automatically collapse on small screens
+  useEffect(() => {
+    const handleResize = () => {
+      setIsCollapsed(window.innerWidth < 1024);
+    };
+
+    handleResize(); // Set initial state based on screen width
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Sidebar for Desktop */}
       <Box
         display={{ base: "none", md: "block" }}
-        w={isCollapsed ? "80px" : "250px"}
+        w={isCollapsed ? "80px" : "260px"}
+        minW="80px"
         h="100vh"
         bg="green.600"
         color="white"
-        pl="4"
-        transition="width 0.3s"
-        borderLeftRadius={10}
-        // position="fixed"
+        p="4"
+        transition="width 0.3s ease-in-out"
       >
-        <Flex justify="space-between" align="center">
-          <Text fontSize="xl" fontWeight="bold" display={isCollapsed ? "none" : "block"}>
-            M-PESA
-          </Text>
+        <Flex justify="space-between" align="center" mb="4">
+          {!isCollapsed && (
+            <Text fontSize="xl" fontWeight="bold">
+              M-PESA
+            </Text>
+          )}
           <IconButton
             icon={isCollapsed ? <MdMenu /> : <MdClose />}
             aria-label="Toggle Sidebar"
@@ -61,14 +74,15 @@ const Sidebar = () => {
           />
         </Flex>
 
-        <VStack mt="6" spacing="2" align="stretch">
+        <VStack spacing="2" align="stretch">
           {SidebarData.map((item, index) => (
             <SidebarItem
               key={index}
               title={item.title}
               icon={iconMap[item.icon]}
               path={item.path}
-              isActive={location.pathname === item.path} // Check if active
+              isCollapsed={isCollapsed}
+              isActive={location.pathname.startsWith(item.path)}
             />
           ))}
         </VStack>
@@ -86,6 +100,7 @@ const Sidebar = () => {
         py="2"
         boxShadow="md"
         justifyContent="space-around"
+        zIndex={10}
       >
         {SidebarData.map((item, index) => (
           <SidebarItem
@@ -93,7 +108,8 @@ const Sidebar = () => {
             title={item.title}
             icon={iconMap[item.icon]}
             path={item.path}
-            isActive={location.pathname === item.path}
+            isCollapsed={false}
+            isActive={location.pathname.startsWith(item.path)}
           />
         ))}
       </Box>

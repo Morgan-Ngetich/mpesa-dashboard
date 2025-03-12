@@ -1,12 +1,15 @@
-import { SimpleGrid, Box, Text, Flex, Icon } from "@chakra-ui/react";
+import { SimpleGrid, Box, Text, Icon } from "@chakra-ui/react";
 import { FaArrowDown } from "react-icons/fa";
+import { SummaryItem } from "../../../services/api";
+import React from "react";
 
-const Deposits = ({deposits}) => {
-
+interface DepositsProps {
+  deposits: SummaryItem[];
+}
+const Deposits: React.FC<DepositsProps> = ({deposits}) => {
   
   return (
-    <Box>
-      <SimpleGrid columns={{ base: 2, md: 3 }} spacing={6}  h={'full'} w={'full'}>
+      <SimpleGrid columns={{ base: 2, md: 3 }} spacing={6}>
         {deposits.map((t, index) => (
           <Box
             key={index}
@@ -39,7 +42,6 @@ const Deposits = ({deposits}) => {
 
         ))}
       </SimpleGrid>
-    </Box>
   );
 };
 

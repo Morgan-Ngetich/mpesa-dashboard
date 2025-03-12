@@ -1,21 +1,48 @@
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import zoomPlugin from "chartjs-plugin-zoom";
 import { Box } from "@chakra-ui/react";
+import { Transaction } from "../../services/api";
+import React from "react";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, zoomPlugin);
 
-const TransactionChart = () => {
+const categories = [
+  "Cash Out", "Send Money", "B2C Payment", "Pay Bill", "Cash In", "OD Payment Transfer",
+  "KenyaRecharge", "ODRepayment", "Customer Merchant Payment", "Customer Airtime Purchase", "Customer Bundle Purchase"
+];
+
+interface TransactionChartProps {
+  transactions: Transaction[]
+}
+const TransactionChart: React.FC<TransactionChartProps> = ({ transactions }) => {
+
+  // Initialize category sums
+  const categorySums: Record<string, { paidIn: number; withdrawn: number }> = {};
+
+  // Process transaction data
+  transactions.forEach(({ details, paid_in, withdraw }) => {
+    const paidInAmount = Number(paid_in) || 0;
+    const withdrawnAmount = Number(withdraw) || 0;
+
+    if (!categorySums[details]) {
+      categorySums[details] = { paidIn: 0, withdrawn: 0 };
+
+      if (!categories.includes(details)) {
+        categories.push(details);
+      }
+    }
+
+    categorySums[details].paidIn += paidInAmount;
+    categorySums[details].withdrawn += withdrawnAmount;
+  });
+
   const data = {
-    labels: [
-      "Cash Out", "Send Money", "B2C Payment", "Pay Bill", "Cash In", "OD Payment Transfer",
-      "KenyaRecharge", "ODRepayment", "Customer Merchant Payment", "Customer Airtime Purchase", "Customer Bundle Purchase"
-    ],
+    labels: categories,
     datasets: [
       {
         label: "Paid In",
-        data: [
-          8252.33, 90751.27, 44400.00, 355.00, 6100.00, 5000.00, 50.00, 0.00, 900.00, 40.00, 647.00
-        ],
+        data: categories.map(category => categorySums[category]?.paidIn || 0),
         backgroundColor: "rgba(54, 162, 235, 0.8)",
         borderColor: "rgba(54, 162, 235, 1)",
         borderWidth: 2,
@@ -23,10 +50,8 @@ const TransactionChart = () => {
         hoverBackgroundColor: "rgba(54, 162, 235, 1)",
       },
       {
-        label: "Paid Out",
-        data: [
-          28081.00, 83563.00, 0.00, 16065.00, 0.00, 0.00, 50.00, 22171.67, 10772.25, 150.00, 2226.00
-        ],
+        label: "Withdrawn",
+        data: categories.map(category => categorySums[category]?.withdrawn || 0),
         backgroundColor: "rgba(255, 99, 132, 0.8)",
         borderColor: "rgba(255, 99, 132, 1)",
         borderWidth: 2,
@@ -36,53 +61,59 @@ const TransactionChart = () => {
     ]
   };
 
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "top",
-        labels: {
-          color: "#ffffff",
-          font: {
-            size: 14
-          }
-        }
-      },
-      title: {
-        display: true,
-        text: "Transaction Summary",
+const options = {
+  responsive: true,
+  maintainAspectRatio: false,
+  animation: { duration: 500 },
+  plugins: {
+    legend: {
+      position: "top" as const,
+      labels: {
         color: "#ffffff",
-        font: {
-          size: 18
-        }
+        font: { size: 14 }
       }
     },
-    scales: {
-      x: {
-        ticks: {
-          color: "#ffffff",
-          maxRotation: 45,
-          minRotation: 45,
-          callback: function (value, index, values) {
-            return value.length > 10 ? value.substring(0, 10) + "..." : value;
-          }
-        },
-        grid: {
-          color: "rgba(255, 255, 255, 0.05)"
-        }
+    title: {
+      display: true,
+      text: "Transaction Summary",
+      color: "#ffffff",
+      font: { size: 18 }
+    },
+    zoom: {
+      pan: { 
+        enabled: true, 
+        mode: "x" as const  // ✅ Explicitly typed as "x"
       },
-      y: {
-        beginAtZero: true,
-        ticks: {
-          color: "#ffffff"
-        },
-        grid: {
-          color: "rgba(255, 255, 255, 0.05)"
-        }
+      zoom: {
+        wheel: { enabled: true, modifierKey: "ctrl" as const },
+        pinch: { enabled: true },
+        drag: { enabled: true, threshold: 10 },
+        mode: "x" as const,  // ✅ Explicitly typed as "x"
+        limits: { x: { min: "original", max: "original" }, y: { min: "original", max: "original" } }
       }
+    },
+  },
+  scales: {
+    x: {
+      ticks: {
+        color: "#ffffff",
+        maxRotation: 45,
+        minRotation: 45,
+        callback: (value: string | number) => {
+          const label = String(value);
+          return label.length > 10 ? `${label.substring(0, 10)}...` : label;
+        },
+      },
+      grid: { color: "rgba(255, 255, 255, 0.05)" }
+    },
+    y: {
+      beginAtZero: true,
+      ticks: { color: "#ffffff" },
+      grid: { color: "rgba(255, 255, 255, 0.05)" }
     }
-  };
+  }
+};
+
 
   return (
     <Box

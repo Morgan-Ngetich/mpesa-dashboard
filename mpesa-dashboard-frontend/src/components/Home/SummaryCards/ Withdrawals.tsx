@@ -1,9 +1,14 @@
-import { SimpleGrid, Box, Text, Flex, Icon } from "@chakra-ui/react";
+import { SimpleGrid, Box, Text, Icon } from "@chakra-ui/react";
+import React from "react";
 import { FaArrowUp } from "react-icons/fa";
+import { SummaryItem } from "../../../services/api";
 
-const Withdrawals = ({withdrawals}) => {
+interface BreakDownProps {
+  withdrawals: SummaryItem[];
+}
+
+const Withdrawals: React.FC<BreakDownProps> = ({withdrawals}) => {
   return (
-    <Box>
       <SimpleGrid columns={{ base: 2, md: 3 }} spacing={6} >
         {withdrawals.map((t, index) => (
           <Box
@@ -34,7 +39,6 @@ const Withdrawals = ({withdrawals}) => {
           </Box>
         ))}
       </SimpleGrid>
-    </Box>
   );
 };
 

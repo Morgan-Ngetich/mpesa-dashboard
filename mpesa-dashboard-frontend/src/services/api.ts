@@ -7,14 +7,18 @@ export interface Customer {
   mobile_number: string;
 }
 
-export interface StatementPeriod {
-  start: string;
-  end: string;
-}
-
 export interface Statement {
   date: string;
-  period: StatementPeriod;
+  period: {
+    start: string;
+    end: string;
+  };
+}
+
+export interface SummaryItem {
+  transaction_type: string;
+  paid_in: number;
+  paid_out: number;
 }
 
 export interface Transaction {
@@ -22,26 +26,28 @@ export interface Transaction {
   completion_time: string;
   details: string;
   transaction_status: string;
-  paid_in: string;
-  withdraw: string;
-  balance: string;
+  paid_in: number;
+  balance: number;
+  withdraw: number;
 }
 
-export interface TransactionsResponse {
-  filename: string;
+export interface StatementData {
   customer: Customer;
-  statement: Statement;
-  transactions: Transaction[];
   disclaimer: string;
+  filename: string;
+  message: string;
+  statement: Statement;
+  summary: SummaryItem[];
+  transactions: Transaction[];
 }
 
-export const uploadFile = async (file: File): Promise<TransactionsResponse | null> => {
+export const uploadFile = async (file: File): Promise<StatementData | null> => {
   const formData = new FormData();
   formData.append("file", file);
 
   try {
-    const response = await axios.post<TransactionsResponse>(
-      `${API_BASE_URL}/upload-file/`,
+    const response = await axios.post<StatementData>(
+      `${API_BASE_URL}/api/upload-file/`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },

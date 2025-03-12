@@ -1,35 +1,36 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Box } from "@chakra-ui/react";
 import { Chart, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip } from "chart.js";
+import zoomPlugin from "chartjs-plugin-zoom";
+import { Transaction } from "../../services/api";
 
-Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip);
+Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, zoomPlugin);
 
-const transactions = [
-  { time: "2025-02-16 14:29:30", balance: 60, withdrawal: 0, paidIn: 600 },
-  { time: "2025-02-16 14:29:31", balance: 0, withdrawal: 600, paidIn: 0 },
-  { time: "2025-02-16 14:56:47", balance: 250, withdrawal: 0, paidIn: 500 },
-  { time: "2025-02-16 14:56:47", balance: 100, withdrawal: 500, paidIn: 0 },
-  { time: "2025-02-17 07:59:02", balance: 420, withdrawal: 0, paidIn: 520 },
-  { time: "2025-02-17 07:59:02", balance: 0, withdrawal: 520, paidIn: 0 },
-  { time: "2025-02-17 11:19:40", balance: 813, withdrawal: 700, paidIn: 713 },
-  { time: "2025-02-17 20:57:58", balance: 20, withdrawal: 0, paidIn: 20 },
-];
-
-const formatDate = (timestamp) => {
+const formatDate = (timestamp: string): string => {
   const date = new Date(timestamp);
+  // Format: MM/DD HH:MM
   return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
 };
 
-const CumulativeLineChart = () => {
-  const chartRef = useRef(null);
-  const chartInstance = useRef(null);
+interface CumulativeLineChartProps {
+  transactions: Transaction[];
+}
+
+const CumulativeLineChart: React.FC<CumulativeLineChartProps> = ({ transactions = [] }) => {
+  const chartRef = useRef<HTMLCanvasElement | null>(null);
+  const chartInstance = useRef<Chart | null>(null);
 
   useEffect(() => {
+    if (!transactions || transactions.length === 0) return;
     if (chartInstance.current) {
       chartInstance.current.destroy();
     }
 
-    const ctx = chartRef.current.getContext("2d");
+    const canvas = chartRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
     const balanceGradient = ctx.createLinearGradient(0, 0, 0, 400);
     balanceGradient.addColorStop(0, "rgba(58, 123, 213, 0.5)");
@@ -38,26 +39,24 @@ const CumulativeLineChart = () => {
     chartInstance.current = new Chart(ctx, {
       type: "line",
       data: {
-        labels: transactions.map((item) => formatDate(item.time)),
+        labels: transactions.map((item) => formatDate(item.completion_time)),
         datasets: [
           {
             label: "Balance Over Time",
-            data: transactions.map((item) => item.balance),
+            data: transactions.map((item) => Number(item.balance)),
             fill: true,
             backgroundColor: balanceGradient,
             borderColor: "#3A7BD5",
             pointBackgroundColor: "#fff",
             pointBorderColor: "#3A7BD5",
-            tension: 0.4, // Smooth curve
+            tension: 0.4,
             borderWidth: 2,
-            borderJoinStyle: "round", // Round joins between segments
-            borderCapStyle: "round", // Round line caps
-            pointRadius: 5, // Adjust point size for a rounded look
-            pointHoverRadius: 7
+            pointRadius: 5,
+            pointHoverRadius: 7,
           },
           {
             label: "Withdrawals",
-            data: transactions.map((item) => item.withdrawal),
+            data: transactions.map((item) => Number(item.withdraw)),
             fill: false,
             borderColor: "#FF4500",
             pointBackgroundColor: "#FF4500",
@@ -66,50 +65,68 @@ const CumulativeLineChart = () => {
           },
           {
             label: "Paid In",
-            data: transactions.map((item) => item.paidIn),
+            data: transactions.map((item) => Number(item.paid_in)),
             fill: false,
             borderColor: "#32CD32",
             pointBackgroundColor: "#32CD32",
             pointBorderColor: "#32CD32",
             tension: 0.4,
-            borderJoinStyle: "round", // Round joins between segments
-            borderCapStyle: "round", // Round line caps
-            pointRadius: 5, // Adjust point size for a rounded look
-            pointHoverRadius: 7
+            pointRadius: 5,
+            pointHoverRadius: 7,
           },
         ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          duration: 500,
+        },
         plugins: {
           legend: {
             display: true,
           },
+          zoom: {
+            pan: {
+              enabled: true,
+              mode: "x",
+            },
+            zoom: {
+              wheel: {
+                enabled: true,
+                modifierKey: "ctrl" as const, // Hold Ctrl to zoom\n                speed: 0.3,
+              },
+              pinch: {
+                enabled: true,
+              },
+              drag: {
+                enabled: true,
+                threshold: 5,
+              },
+              mode: "x",
+            },
+          },
         },
         scales: {
           x: {
-            grid: {
-              display: false,
-            },
+            grid: { display: false },
             ticks: {
               autoSkip: true,
               maxTicksLimit: 5,
               color: "#ffffff",
+              callback: (value) => (typeof value === "string" && value.length > 10 ? value.substring(0, 10) + "..." : value),
             },
           },
           y: {
             beginAtZero: true,
-            grid: {
-              color: "rgba(255, 255, 255, 0.02)",
-            },
+            grid: { color: "rgba(255, 255, 255, 0.02)" },
           },
         },
       },
     });
 
-    return () => chartInstance.current.destroy();
-  }, []);
+    return () => chartInstance.current?.destroy();
+  }, [transactions]);
 
   return (
     <Box
@@ -121,7 +138,6 @@ const CumulativeLineChart = () => {
       boxShadow="0 0 20px rgba(0, 255, 30, 0.1)"
       backdropFilter="blur(10px)"
       p={4}
-      
     >
       <canvas ref={chartRef}></canvas>
     </Box>

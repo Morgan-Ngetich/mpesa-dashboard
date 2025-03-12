@@ -1,9 +1,14 @@
 import { Box, SimpleGrid, Flex, Text, Icon } from "@chakra-ui/react";
 import { FaMoneyBillWave, FaExchangeAlt, FaWallet } from "react-icons/fa";
 import { MdTrendingUp } from "react-icons/md";
+import { SummaryItem } from "../../../services/api";
+import React from "react";
 
+interface TotalCardsProps {
+  summaryData: SummaryItem[];
+}
 
-const TotalCards = ({summaryData}) => {
+const TotalCards: React.FC<TotalCardsProps> = ({summaryData}) => {
   // Calculate totals
 const totalPaidIn = summaryData.reduce((sum, txn) => sum + txn.paid_in, 0);
 const totalPaidOut = summaryData.reduce((sum, txn) => sum + txn.paid_out, 0);

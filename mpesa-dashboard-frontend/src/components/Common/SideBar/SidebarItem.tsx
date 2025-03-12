@@ -1,41 +1,44 @@
+import React from "react";
 import { Flex, Icon, Text, useBreakpointValue } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { IconType } from "react-icons";
 
 interface SidebarItemProps {
   title: string;
   icon: IconType;
   path: string;
+  isCollapsed: boolean;
   isActive: boolean;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ title, icon, path, isActive }) => {
-  const navigate = useNavigate();
-  
-  // Hide text on mobile devices
+const SidebarItem: React.FC<SidebarItemProps> = ({ title, icon, path, isCollapsed, isActive }) => {
+  // On desktop, show text; on mobile, only the icon
   const showText = useBreakpointValue({ base: false, md: true });
-  const iconSize = useBreakpointValue({ base: "28px", md: "20px" }); // Larger icon for mobile
-  const justifyContent = showText ? "flex-start" : "center"; // Center icon when text is hidden
-  const borderRadius = useBreakpointValue({ base: "xl", md: "3xl" }); // Different border radius for mobile and desktop
+  // Adjust icon size based on breakpoint
+  const iconSize = useBreakpointValue({ base: "28px", md: "23px" });
+  const justifyContent = showText ? "flex-start" : "center";
+
+
 
   return (
-    <Flex
-      align="center"
-      justify={justifyContent}
-      p="3"
-      my="2"
-      w={showText ? "full" : "50px"} // Adjust width for better alignment
-      h="50px" // Ensure consistent height
-      borderRadius={borderRadius}
-      cursor="pointer"
-      bg={isActive ? "white" : "transparent"}
-      color={isActive ? "black" : ""}
-      _hover={{ bg: "gray.300", color: "black" }}
-      onClick={() => navigate(path)}
-    >
-      <Icon as={icon} fontSize={iconSize} />
-      {showText && <Text fontSize="md" ml="3">{title}</Text>}
-    </Flex>
+    <NavLink to={path} style={{ textDecoration: "none", width: "100%" }}>
+      <Flex
+        align="center"
+        justifyContent={justifyContent}
+        p="3"
+        borderRadius="lg"
+        bg={isActive ? "whiteAlpha.300" : "transparent"}
+        color={isActive ? "white" : "gray.200"}
+        fontWeight={isActive ? "bold" : "normal"}
+        transition="0.2s"
+        _hover={{ bg: "whiteAlpha.200", color: "white" }}
+        h="50px"
+        mb={{base: "",  md: 5}}
+      >
+        <Icon as={icon} fontSize={iconSize} />
+        {showText && !isCollapsed && <Text fontSize="md" ml="3">{title}</Text>}
+      </Flex>
+    </NavLink>
   );
 };
 

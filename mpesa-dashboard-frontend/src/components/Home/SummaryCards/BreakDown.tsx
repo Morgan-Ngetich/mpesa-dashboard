@@ -1,8 +1,13 @@
-import { Box, Flex, SimpleGrid, Text, Icon, Button, Collapse } from "@chakra-ui/react";
+import { Box, Flex, SimpleGrid, Text, Icon, Button } from "@chakra-ui/react";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa";
-import { useState } from "react";
+import React, { useState } from "react";
+import { SummaryItem } from "../../../services/api";
 
-const Breakdown = ({deposits, withdrawals}) => {
+interface BreakDownProps {
+  deposits: SummaryItem[]
+  withdrawals: SummaryItem[]
+}
+const Breakdown: React.FC<BreakDownProps> = ({deposits, withdrawals}) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -11,6 +16,7 @@ const Breakdown = ({deposits, withdrawals}) => {
       // borderRadius="lg"
       overflow="hidden"
       boxShadow="lg"
+      w={'full'}
     >
       {/* Expandable Content */}
       <Box
@@ -18,8 +24,9 @@ const Breakdown = ({deposits, withdrawals}) => {
         overflow="hidden"
         transition="max-height 0.3s ease-in-out"
         px={4}
+        w={'full'}
       >
-        <SimpleGrid columns={{ base: 2, md: 2 }} spacing={6}>
+        <SimpleGrid columns={{ base: 2, md: 2 }} spacing={8}>
           {/* Deposits Column */}
           <Box>
             <Text fontSize={{base: "sm", md: "lg"}} fontWeight="bold" mb={2} color="green.600">

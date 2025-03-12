@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   InputGroup,
@@ -12,17 +12,22 @@ import {
   DrawerHeader,
   DrawerBody,
   DrawerFooter,
-  Select,
   useDisclosure,
 } from "@chakra-ui/react";
 import { FaSearch, FaFilter, FaFileDownload } from "react-icons/fa";
 
-const TransactionControls = ({ onSearch, onFilter, onExport }) => {
+interface TransactionControlsProps {
+  onSearch : (query: string) => void;
+  onFilter : (status: string) => void;
+  onExport : () => void;
+}
+
+const TransactionControls: React.FC<TransactionControlsProps> = ({ onSearch, onFilter, onExport }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [searchTerm, setSearchTerm] = useState("");
   const [status, setStatus] = useState("all");
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     onSearch(e.target.value);
   };
