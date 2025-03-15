@@ -46,6 +46,11 @@ jobs:
       - name: Deploy to OpenShift
         run: |
           oc apply -f k8s/  # Apply your OpenShift deployment configurations
+          
+      - name: Restart Deployments (Force Update)
+        run: |
+          oc rollout restart deployment/mpesa-dashboard-backend
+          oc rollout restart deployment/mpesa-dashboard-frontend
 
       - name: Verify Deployment
         run: |
