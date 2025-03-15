@@ -37,7 +37,7 @@ VITE_API_URL=http://localhost:8000
 To build and serve the frontend:
 ```sh
 npm run build
-npm run preview
+npm run dev
 ```
 
 This optimizes the app for production.

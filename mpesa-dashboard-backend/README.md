@@ -19,6 +19,11 @@ If Poetry is not installed, install it using:
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
+if you like you can run the appication on the poetry shell using:
+```sh
+poetry shell
+```
+
 ### 2️⃣ Install Dependencies
 ```sh
 cd backend
