@@ -1,0 +1,6 @@
+configs/*.properties
+configs/zookeeper-data/*
+configs/kafka/*
+data/zookeeper/*
+data/kafka/*
+logs/*
