@@ -13,6 +13,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Install Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+
       - name: Set Up OpenShift CLI
         run: |
           curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz
@@ -32,10 +37,13 @@ jobs:
         run: |
           echo "OPENSHIFT_REGISTRY=$(oc registry info)" >> $GITHUB_ENV
 
+      - name: Log in to OpenShift Registry
+        run: |
+          docker login -u $(oc whoami) -p $(oc whoami -t) --insecure-skip-tls-verify=true $OPENSHIFT_REGISTRY
+
       - name: Build and Push Backend Image
         run: |
           docker build -t $OPENSHIFT_REGISTRY/ngetichmorgan6-dev/mpesa-dashboard-backend:latest ./mpesa-dashboard-backend
-          docker login -u $(oc whoami) -p $(oc whoami -t) $OPENSHIFT_REGISTRY
           docker push $OPENSHIFT_REGISTRY/ngetichmorgan6-dev/mpesa-dashboard-backend:latest
 
       - name: Build and Push Frontend Image
@@ -45,7 +53,12 @@ jobs:
 
       - name: Deploy to OpenShift
         run: |
-          oc apply -f k8s/  # Apply your OpenShift deployment configurations
+          oc apply -f k8s/  # Apply OpenShift deployment configurations
+
+      - name: Restart Deployments (Force Update)
+        run: |
+          oc rollout restart deployment/mpesa-dashboard-backend
+          oc rollout restart deployment/mpesa-dashboard-frontend
 
       - name: Verify Deployment
         run: |
