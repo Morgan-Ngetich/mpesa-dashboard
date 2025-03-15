@@ -12,21 +12,36 @@ spec:
       labels:
         app: backend
     spec:
+      initContainers:
+        - name: wait-for-kafka
+          image: busybox
+          command: ['sh', '-c', 'until nc -z kafka 9092; do sleep 2; done;']
       containers:
         - name: backend
-          image: mpesa-dashboard-backend:latest
+          image: morganngetich/mpesa-backend:latest  # ✅ Use built & pushed image
           ports:
             - containerPort: 8000
-          volumeMounts:
-            - name: uploads
-              mountPath: /shared/uploads
           env:
             - name: ENV
               value: production
             - name: KAFKA_BROKER
               value: kafka:9092
+          volumeMounts:
+            - name: uploads
+              mountPath: /shared/uploads
       volumes:
         - name: uploads
           persistentVolumeClaim:
             claimName: uploads-pvc
-
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mpesa-backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
