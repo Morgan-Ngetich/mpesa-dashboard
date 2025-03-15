@@ -22,5 +22,10 @@ FROM nginx:1
 
 COPY --from=build-stage /app/dist/ /usr/share/nginx/html
 
+# Copy SSL certificates
+COPY ./nginx/ssl/nginx.crt /etc/nginx/ssl/nginx.crt
+COPY ./nginx/ssl/nginx.key /etc/nginx/ssl/nginx.key
+
+
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf
