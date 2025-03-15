@@ -60,3 +60,20 @@ http://localhost
 ### 🔗 Additional Setup Guides
 - [Frontend Setup Guide](mpesa-dashboard-frontend/README.md)
 - [Backend Setup Guide](mpesa-dashboard-backend/README.md)
+
+
+## Demo with Images
+
+
+
+![Dashboard Screenshot 0](./mpesa-dashboard-frontend/src/assets/Screenshot%20(131).png)  
+![Dashboard Screenshot 1](./mpesa-dashboard-frontend/src/assets/Screenshot%20(120).png)  
+![Dashboard Screenshot 2](./mpesa-dashboard-frontend/src/assets/Screenshot%20(121).png)  
+![Dashboard Screenshot 3](./mpesa-dashboard-frontend/src/assets/Screenshot%20(122).png)  
+![Dashboard Screenshot 4](./mpesa-dashboard-frontend/src/assets/Screenshot%20(123).png)  
+![Dashboard Screenshot 5](./mpesa-dashboard-frontend/src/assets/Screenshot%20(124).png)  
+![Dashboard Screenshot 6](./mpesa-dashboard-frontend/src/assets/Screenshot%20(125).png)  
+![Dashboard Screenshot 7](./mpesa-dashboard-frontend/src/assets/Screenshot%20(126).png)  
+![Dashboard Screenshot 8](./mpesa-dashboard-frontend/src/assets/Screenshot%20(127).png)  
+![Dashboard Screenshot 9](./mpesa-dashboard-frontend/src/assets/Screenshot%20(128).png)  
+![Dashboard Screenshot 10](./mpesa-dashboard-frontend/src/assets/Screenshot%20(129).png)  
